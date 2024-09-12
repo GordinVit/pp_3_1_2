@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Пользователи</title>
+</head>
+<body>
+
+<div>
+    <div>
+        <button onclick="openTab('tab2')">Добавить нового пользователя</button>
+    </div>
+    <form th:action="@{/logout}" method="post">
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+        <button type="submit">Выйти из аккаунта</button>
+    </form>
+</div>
+
+<div>
+    <div id="tab1">
+        <h2>Все пользователи</h2>
+        <table border="1">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Почта</th>
+                <th>Роль</th>
+                <th>Изменить</th>
+                <th>Удалить</th>
+                <th>Просмотреть</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}">Значение ID</td>
+                <td th:text="${user.username}">Значение Имя</td>
+                <td th:text="${user.email}">Значение Почта</td>
+                <td th:text="${user.authorities}">Значение Роль</td>
+                <td>
+                    <form th:method="GET" th:action="@{/admin/edit(id=${user.id})}">
+                        <input type="submit" value="Изменить"/>
+                        <input type="hidden" name="id" th:value="${user.id}"/>
+                    </form>
+                </td>
+                <td>
+                    <form th:method="POST" th:action="@{/admin/delete}">
+                        <input type="submit" value="Удалить"/>
+                        <input type="hidden" name="id" th:value="${user.id}"/>
+                        <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                    </form>
+                </td>
+                <td>
+                    <form th:method="GET" th:action="@{/admin/{id}(id=${user.id})}">
+                        <input type="submit" value="Просмотреть"/>
+                        <input type="hidden" name="id" th:value="${user.id}"/>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="tab2" style="display:none;">
+        <h2>Добавить нового пользователя</h2>
+        <form th:action="@{/admin/new}" th:object="${newUser}" method="post">
+            <label for="username">Имя</label>
+            <br/>
+            <input type="text" th:field="*{username}" id="username"/>
+            <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+            <br/>
+            <label for="email">Почта</label>
+            <br/>
+            <input type="email" th:field="*{email}" id="email"/>
+            <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            <br/>
+            <label for="password">Пароль</label>
+            <br/>
+            <input type="password" th:field="*{password}" id="password"/>
+            <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            <br/>
+            <div th:each="role : ${allRoles}">
+                <input type="checkbox" th:value="${role.id}" th:id="'role_' + ${role.id}" name="selectedRoles"/>
+                <label th:for="'role_' + ${role.id}" th:text="${role.authority}"></label><br/>
+            </div>
+            <br/>
+            <input type="submit" value="Создать!">
+        </form>
+    </div>
+</div>
+
+<script>
+    function openTab(tabId) {
+        var i, tabcontent;
+        tabcontent = document.querySelectorAll('.tab-content');
+        tabcontent.forEach(function (element) {
+            element.style.display = "none";
+        });
+        document.getElementById(tabId).style.display = "block";
+    }
+</script>
+
+</body>
+</html>
