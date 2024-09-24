@@ -24,17 +24,27 @@ public class AdminController {
         this.roleService = roleService;
     }
 
-    @GetMapping()
-    public String getAllUser(Model model) {
+
+    private void addUsersAndRolesToModel(Model model) {
         model.addAttribute("users", userService.getAllUser());
         model.addAttribute("allRoles", roleService.getAllRoles());
+    }
+
+
+    private void addUserToModel(Long id, Model model) {
+        model.addAttribute("user", userService.getUserById(id));
+    }
+
+    @GetMapping()
+    public String getAllUser(Model model) {
+        addUsersAndRolesToModel(model);
         model.addAttribute("newUser", new User());
         return "users";
     }
 
     @GetMapping("/{id}")
     public String getUser(@RequestParam("id") Long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
+        addUserToModel(id, model);
         return "show";
     }
 
@@ -45,10 +55,9 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-
     @GetMapping("/edit")
     public String editUserForm(Model model, @RequestParam("id") Long id) {
-        model.addAttribute("user", userService.getUserById(id));
+        addUserToModel(id, model);
         model.addAttribute("allRoles", roleService.getAllRoles());
         return "edit";
     }
@@ -59,7 +68,6 @@ public class AdminController {
         userService.updateUser(user, id, Arrays.asList(selectedRoles));
         return "redirect:/admin";
     }
-
 
     @PostMapping("/delete")
     public String deleteUser(@RequestParam("id") Long id) {
